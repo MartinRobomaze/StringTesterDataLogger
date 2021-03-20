@@ -31,9 +31,6 @@ def logger(ser: serial.Serial, sample_rate, file_name, start_freq, end_freq, swe
     data = [['time', 'y_val', 'frequency']]
     start_time = time()
 
-    # Write message to Arduino to start sending data.
-    ser.write(('{}\r\n'.format(sample_rate)).encode('utf-8'))
-
     while time() - start_time < sweep_time:
         try:
             # Get message from arduino.
@@ -41,7 +38,8 @@ def logger(ser: serial.Serial, sample_rate, file_name, start_freq, end_freq, swe
 
             # Strip message and convert it to number.
             val_y = int(message.strip())
-        except Exception:
+        except Exception as e:
+            print(e)
             continue
 
         data_time = time() - start_time
@@ -56,6 +54,7 @@ def logger(ser: serial.Serial, sample_rate, file_name, start_freq, end_freq, swe
 
         data.append([data_time, current_y, freq])
         # Display measured frequency.
+        print(current_y)
         current_state.config(text=state_measuring_format.format(round(freq, 5)))
 
     ser.close()
@@ -93,6 +92,9 @@ def measure():
         messagebox.showerror("Cannot connect to device", "Cannot connect to device, "
                                                          "try again with different serial port.")
         return
+
+    # Write message to Arduino to start sending data.
+    ser.write(('{}\r\n'.format(sample_rate)).encode('utf-8'))
 
     # Start audio output thread.
     audio_thread = threading.Thread(target=start_audio, args=(start_freq, end_freq, sweep_time,), daemon=True)
