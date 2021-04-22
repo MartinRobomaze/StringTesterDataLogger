@@ -26,7 +26,7 @@ int AnalogRead(short channel) {
 }
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(1000000);
 
   // Configure pins.
   PORTC |= SENS_HORIZONTAL;
@@ -50,16 +50,16 @@ void loop() {
 
   // Read values of horizontal and vertical sensor.
   int valY = AnalogRead(1);
+  int valX = AnalogRead(0);
 
   // Message buffer.
-  char message[10];
+  char message[20];
 
   // Add measured value to message.
-  sprintf(message, "%d\n", valY);
+  sprintf(message, "%d,%d\n", valX, valY);
 
   // Send message via serial port.
   Serial.print(message);
 
-  // Wait for 1 / sampleRate seconds.
-  while (micros() - startTime < 1000000 / sampleRate);
+  delay(1);
 }
